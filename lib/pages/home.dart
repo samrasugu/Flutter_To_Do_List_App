@@ -2,6 +2,8 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_todo_list_app/auth/authpage.dart';
+import 'package:flutter_todo_list_app/pages/home_page.dart';
 import 'package:flutter_todo_list_app/pages/login.dart';
 import 'package:flutter_todo_list_app/pages/profile_page.dart';
 import 'package:flutter_todo_list_app/pages/settings_page.dart';
@@ -15,77 +17,69 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  final user = FirebaseAuth.instance.currentUser;
+
   int _selectedIndex = 0;
 
   void navigateBottom(int index) {
     setState(() {
-      index = _selectedIndex;
+      _selectedIndex = index;
     });
   }
 
   final List<Widget> _pages = [
-    Home(),
-    SettingsPage(),
+    HomePage(),
     Tasks(),
     ProfilePage(),
+    SettingsPage(),
   ];
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.lightBlue.shade900,
-          title: Text('TODO LIST APP'),
-          actions: [
-            GestureDetector(
-              onTap: () {
-                FirebaseAuth.instance.signOut();
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.lightBlue.shade900,
+        title: Text('TODO LIST APP'),
+        actions: [
+          GestureDetector(
+            onTap: () {
+              FirebaseAuth.instance.signOut();
 
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            LogInPage(showRegisterPage: () {})));
-              },
-              child: Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Icon(Icons.logout),
+              Navigator.pushReplacement(
+                  context, MaterialPageRoute(builder: (context) => AuthPage()));
+            },
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Icon(Icons.logout),
+            ),
+          )
+        ],
+      ),
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: navigateBottom,
+        backgroundColor: Colors.lightBlue.shade900,
+        fixedColor: Colors.white,
+        type: BottomNavigationBarType.fixed,
+        items: [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(
+              icon: Icon(
+                Icons.language,
               ),
-            )
-          ],
-        ),
-        body: _pages[_selectedIndex],
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          onTap: navigateBottom,
-          backgroundColor: Colors.lightBlue.shade900,
-          fixedColor: Colors.white,
-          type: BottomNavigationBarType.fixed,
-          items: [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-            BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.home,
-                ),
-                label: 'Tasks'),
-            BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.home,
-                ),
-                label: 'Tasks'),
-            BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.settings,
-                ),
-                label: 'Settings'),
-            BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.settings,
-                ),
-                label: 'Settings'),
-          ],
-        ),
+              label: 'Tasks'),
+          BottomNavigationBarItem(
+              icon: Icon(
+                Icons.person,
+              ),
+              label: 'Profile'),
+          BottomNavigationBarItem(
+              icon: Icon(
+                Icons.settings,
+              ),
+              label: 'Settings'),
+        ],
       ),
     );
   }

@@ -16,14 +16,22 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
+  FirebaseAuth auth = FirebaseAuth.instance;
+  User? user;
+
   final firstnamecontroller = TextEditingController();
   final lastnamecontroller = TextEditingController();
   final emailcontroller = TextEditingController();
   final passwordcontroller = TextEditingController();
   final confirmPasswordcontroller = TextEditingController();
 
-  FirebaseAuth auth = FirebaseAuth.instance;
-  User? user;
+  @override
+  void dispose() {
+    firstnamecontroller.dispose();
+    lastnamecontroller.dispose();
+    emailcontroller.dispose();
+    super.dispose();
+  }
 
   // Function for signup user and add user details
   Future signUp() async {
@@ -33,33 +41,75 @@ class _SignUpPageState extends State<SignUpPage> {
           email: emailcontroller.text.trim(),
           password: passwordcontroller.text.trim());
 
-      signIn();
-
-      // store user details
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc('${user?.uid}')
-          .set({
-        'firs tname': firstnamecontroller.text.trim(),
-        'last name': lastnamecontroller.text.trim(),
-        'email': emailcontroller.text.trim()
+      // signIn();
+      await auth
+          .signInWithEmailAndPassword(
+              email: emailcontroller.text.trim(),
+              password: passwordcontroller.text.trim())
+          .then((value) {
+        if (mounted) {
+          setState(() {
+            user = FirebaseAuth.instance.currentUser;
+          });
+        }
       });
 
-      Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
+      // add user profile details
+      addUserDetails(
+        firstnamecontroller.text.trim(),
+        lastnamecontroller.text.trim(),
+        emailcontroller.text.trim(),
+      );
+
+      // // store user details
+      // await FirebaseFirestore.instance
+      //     .collection('users')
+      //     .doc('${user?.uid}')
+      //     .set({
+      //   'firstname': firstnamecontroller.text.trim(),
+      //   'lastname': lastnamecontroller.text.trim(),
+      //   'email': emailcontroller.text.trim()
+      // });
+
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => Home()));
     }
   }
 
-  void signIn() async {
-    await auth
-        .signInWithEmailAndPassword(
-            email: emailcontroller.text.trim(),
-            password: passwordcontroller.text.trim())
-        .then((value) {
-      setState(() {
-        user = FirebaseAuth.instance.currentUser;
-      });
+  Future addUserDetails(
+    // String image,
+    String firstname,
+    String lastname,
+    String email,
+  ) async {
+    // final firebaseUser = await FirebaseAuth.instance.currentUser();
+    // await Firestore.instance.collection('users').document(_emailController.text.trim()).setData({
+    //   'email': _emailController.text.trim(),
+    //   'password': _passwordController.text.trim(),
+    //   'driverType': drivertype,
+
+    // add user profile
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc('${user?.uid}')
+        .set({
+      'firstname': firstname,
+      'lastname': lastname,
+      'email': email,
     });
   }
+
+  // void signIn() async {
+  //   await auth
+  //       .signInWithEmailAndPassword(
+  //           email: emailcontroller.text.trim(),
+  //           password: passwordcontroller.text.trim())
+  //       .then((value) {
+  //     setState(() {
+  //       user = FirebaseAuth.instance.currentUser;
+  //     });
+  //   });
+  // }
 
   bool passwordConfirmed() {
     if (passwordcontroller.text.trim() ==
