@@ -2,9 +2,6 @@
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_todo_list_app/auth/mainpage.dart';
-import 'package:flutter_todo_list_app/pages/login.dart';
-import 'package:flutter_todo_list_app/pages/signup.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
@@ -24,7 +21,14 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
           primarySwatch: Colors.blue,
           fontFamily: GoogleFonts.poppins().fontFamily),
-      home: MainPage(),
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Welcome'),
+        ),
+        body: const Center(
+          child: Text('Hello World'),
+        ),
+      ),
     );
   }
 }
